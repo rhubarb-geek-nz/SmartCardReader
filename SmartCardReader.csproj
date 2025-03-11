@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>RhubarbGeekNz.SmartCardReader</AssemblyName>
+    <Copyright>Copyright &#169; 2025 Roger Brown</Copyright>
+    <Version>1.0.0</Version>
+    <AssemblyTitle>PowerShell Cmdlets for SmartCardReader</AssemblyTitle>
+    <Product>PowerShell SmartCardReader</Product>
+    <Company>rhubarb-geek-nz</Company>
+    <PackageId>rhubarb-geek-nz.SmartCardReader</PackageId>
+    <Title>SmartCardReader for PowerShell</Title>
+    <Description>Smartcard Reader</Description>
+    <Authors>Roger Brown</Authors>
+    <PackageProjectUrl>https://github.com/rhubarb-geek-nz/SmartCardReader</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rhubarb-geek-nz/SmartCardReader.git</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>SmartCardReader</PackageTags>
+    <CertificateThumbprint>601A8B683F791E51F647D34AD102C38DA4DDB65F</CertificateThumbprint>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <Target Name="Sign" AfterTargets="Compile" Condition=" '$(Configuration)' == 'Release'">
+    <ItemGroup>
+        <FileToSign Include="$(IntermediateOutputPath)$(TargetFileName)" />
+    </ItemGroup>
+    <Message Importance="high" Text="Signing assemblies: @(FileToSign)" />
+    <SignFile
+          SigningTarget="@(FileToSign)"
+          CertificateThumbprint="$(CertificateThumbprint)"
+          TimestampUrl="http://timestamp.digicert.com"
+    />
+  </Target>
+
+  <Target Name="Package" AfterTargets="Publish" Condition=" '$(Configuration)' == 'Release' ">
+    <ItemGroup>
+      <FilesToDelete Include="$(PublishDir)$(AssemblyName).deps.json" />
+      <FilesToDelete Include="$(PublishDir)$(AssemblyName).pdb" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" />
+    <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File ./package.ps1 $(ProjectName) $(IntermediateOutputPath) $(OutDir) $(PublishDir) $(TargetFramework)" />
+  </Target>
+
+</Project>
